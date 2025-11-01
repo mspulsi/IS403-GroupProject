@@ -8,6 +8,9 @@ const app=express(); // Create an Express application object
 
 app.set('view engine','ejs'); // Set EJS as the templating engine
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 const port= process.env.PORT || 3000; // Define the port number by environment variable or default to 3000
 
 // Middleware (app.use), to create a session for each user
