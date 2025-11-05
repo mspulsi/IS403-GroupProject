@@ -1,4 +1,13 @@
 {
+  "name": "is403-groupproject",
+  "version": "1.0.0",
+  "description": "Feel Good - OGN web app for IS403 group project.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
