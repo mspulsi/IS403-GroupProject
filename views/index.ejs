@@ -3,18 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feel Good - OGN</title>
+    <title>Only Good News</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <nav><a href="/">Logout</a> <a href="/preferences">Preferences</a></nav>
+    <header>
+        <nav>
+            <a href="/preferences">Preferences</a>
+            <a href="/">Logout</a>
+        </nav>
+    </header>
     <main>
-        <h1>Welcome to OGN</h1>
+        <div class="header-section">
+            <img class="logo" src="/images/logo.png" alt="Only Good News Logo">
+        </div>
         <div id="newsfeed" class="container">
-            <h2>News Feed</h2>
-            <p>Your personalized news feed will appear here.</p>
+            <% if (news.length > 0) { %>
+                <% news.forEach(post => { %>
+                    <div class="news-item">
+                        <h3><%= post.title %></h3>
+                        <% if (post.thread && post.thread.main_image) { %>
+                            <img src="<%= post.thread.main_image %>" 
+                                alt="Article image"
+                                onerror="this.style.display='none'">
+                        <% } %>
+                        <p><%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+                        <a href="<%= post.url %>" target="_blank">Read full article →</a>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No news found.</p>
+            <% } %>
         </div>
     </main>
-    <footer><p>&copy; 2025 OGN. All rights reserved.</p></footer>
+    <footer>&copy; 2025 Only Good News. All rights reserved.</footer>
 </body>
 </html>
