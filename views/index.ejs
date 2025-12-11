@@ -90,5 +90,60 @@
         </div>
     </main>
     <footer>&copy; 2025 Only Good News. All rights reserved.</footer>
+    <script>
+        // Handle save article form submissions
+        document.querySelectorAll('.save-article-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const button = form.querySelector('.save-btn');
+                
+                // Disable button and show loading state
+                button.disabled = true;
+                button.style.opacity = '0.7';
+
+                try {
+                    // Convert FormData to URL-encoded format
+                    const params = new URLSearchParams(formData);
+                    const response = await fetch('/save-article', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params
+                    });
+
+                    // Check if user is not logged in (401 status)
+                    if (response.status === 401) {
+                        alert('Log in to save news');
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Change to checkmark and white background
+                        const bookmarkIcon = button.querySelector('.bookmark-icon');
+                        const checkmarkIcon = button.querySelector('.checkmark-icon');
+                        bookmarkIcon.style.display = 'none';
+                        checkmarkIcon.style.display = 'inline';
+                        button.classList.add('saved');
+                        button.disabled = true;
+                    } else {
+                        alert(data.message || 'Error saving article');
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error saving article. Please try again.');
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
