@@ -627,6 +627,9 @@ app.post('/admin/users/:id/delete', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Admin delete error:', error);
     return res.redirect('/admin/users');
+  }
+});
+
 // Save article to user's profile
 app.post('/save-article', async (req, res) => {
   try {
