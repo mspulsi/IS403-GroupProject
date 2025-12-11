@@ -7,41 +7,43 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="nav-left">
-                <a href="/">Only Good News</a>
-                <a href="/saved">Saved Articles</a>
-                <a href="/preferences">Preferences</a>
-                <% if (isAdmin) { %>
-                    <a href="/admin/users">Manage Users</a>
-                <% } %>
+    <main>
+        <div class="hero-section">
+            <nav class="hero-nav">
+                <div class="hero-nav-left">
+                    <a href="/">Only Good News</a>
+                </div>
+                <div class="hero-nav-right">
+                    <% if (username) { %>
+                        <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <a href="/saved" class="hero-nav-link">Saved</a>
+                        <% if (isAdmin) { %>
+                            <a href="/admin/users" class="hero-nav-link">Manage Users</a>
+                        <% } %>
+                        <span class="hero-nav-user">Signed in as <%= username %></span>
+                        <form action="/logout" method="POST" class="hero-nav-form">
+                            <button type="submit" class="btn subtle">Logout</button>
+                        </form>
+                    <% } else { %>
+                        <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <a href="/login" class="hero-nav-link">Login</a>
+                        <a class="btn primary" href="/signup">Sign up</a>
+                    <% } %>
+                </div>
+            </nav>
+            <div class="hero-content">
+                <a href="/" class="back-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Back to Home
+                </a>
+                <h1 class="hero-title"><%= category %></h1>
+                <p class="hero-subtitle"><%= news.length %> positive article<%= news.length !== 1 ? 's' : '' %> found</p>
             </div>
-            <div class="nav-right">
-                <% if (username) { %>
-                    <span class="nav-user">Signed in as <%= username %></span>
-                    <form action="/logout" method="POST">
-                        <button type="submit" class="btn subtle">Logout</button>
-                    </form>
-                <% } else { %>
-                    <a href="/login">Login</a>
-                    <a class="btn primary" href="/signup">Sign up</a>
-                <% } %>
-            </div>
-        </nav>
-    </header>
-    <main class="container">
-        <div class="category-header">
-            <a href="/" class="back-link">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                Back to Home
-            </a>
-            <h1><%= category %></h1>
-            <p class="muted"><%= news.length %> positive article<%= news.length !== 1 ? 's' : '' %> found</p>
         </div>
+        <div class="container">
 
         <% if (error) { %>
             <div class="alert error"><%= error %></div>

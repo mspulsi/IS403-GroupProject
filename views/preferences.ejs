@@ -7,30 +7,37 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="nav-left">
-                <a href="/">Only Good News</a>
-                <a href="/saved">Saved Articles</a>
-                <a href="/preferences">Preferences</a>
-                <% if (isAdmin) { %>
-                    <a href="/admin/users">Manage Users</a>
-                <% } %>
+    <main>
+        <div class="hero-section">
+            <nav class="hero-nav">
+                <div class="hero-nav-left">
+                    <a href="/">Only Good News</a>
+                </div>
+                <div class="hero-nav-right">
+                    <% if (username) { %>
+                        <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <a href="/saved" class="hero-nav-link">Saved</a>
+                        <% if (isAdmin) { %>
+                            <a href="/admin/users" class="hero-nav-link">Manage Users</a>
+                        <% } %>
+                        <span class="hero-nav-user">Signed in as <%= username %></span>
+                        <form action="/logout" method="POST" class="hero-nav-form">
+                            <button type="submit" class="btn subtle">Logout</button>
+                        </form>
+                    <% } else { %>
+                        <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <a href="/login" class="hero-nav-link">Login</a>
+                        <a class="btn primary" href="/signup">Sign up</a>
+                    <% } %>
+                </div>
+            </nav>
+            <div class="hero-content">
+                <img class="logo" src="/images/logo.png" alt="Only Good News Logo">
+                <h1 class="hero-title">Your News Preferences</h1>
+                <p class="hero-subtitle">Choose up to 3 categories to personalize your feed</p>
             </div>
-            <div class="nav-right">
-                <% if (username) { %>
-                    <span class="nav-user">Signed in as <%= username %></span>
-                    <form action="/logout" method="POST">
-                        <button type="submit" class="btn subtle">Logout</button>
-                    </form>
-                <% } else { %>
-                    <a href="/login">Login</a>
-                    <a class="btn primary" href="/signup">Sign up</a>
-                <% } %>
-            </div>
-        </nav>
-    </header>
-    <main class="container">
+        </div>
+        <div class="container">
         <div class="card preferences-card">
             <div class="preferences-header">
                 <h1>Your News Preferences</h1>
@@ -104,6 +111,7 @@
                     <a href="/" class="btn">← Back to News</a>
                 </div>
             </form>
+        </div>
         </div>
     </main>
 </body>

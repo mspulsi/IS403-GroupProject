@@ -31,6 +31,17 @@ main {
     min-height: calc(100vh - 200px);
 }
 
+.page-with-footer {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-with-footer .container {
+    flex: 1;
+    width: 100%;
+}
+
 main.auth-page {
     min-height: 100vh;
     height: 100vh;

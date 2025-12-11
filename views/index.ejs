@@ -119,6 +119,52 @@
                         <% } %>
                     </section>
                 <% }); %>
+            <% } else if (news && news.length > 0) { %>
+                <div id="newsfeed" class="newsfeed-grid">
+                    <% news.forEach(post => { %>
+                        <article class="news-card">
+                            <% if (post.thread && post.thread.main_image) { %>
+                                <div class="news-image-wrapper">
+                                    <img src="<%= post.thread.main_image %>" 
+                                        alt="Article image"
+                                        class="news-image"
+                                        onerror="this.parentElement.style.display='none'">
+                                </div>
+                            <% } %>
+                            <div class="news-content">
+                                <h3 class="news-title"><%= post.title %></h3>
+                                <div class="news-meta">
+                                    <span class="news-date">
+                                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                    </span>
+                                </div>
+                                <a href="<%= post.url %>" target="_blank" class="news-link">
+                                    Read full article
+                                    <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                            <form class="save-article-form">
+                                <input type="hidden" name="title" value="<%= post.title %>">
+                                <input type="hidden" name="url" value="<%= post.url %>">
+                                <button type="submit" class="save-btn" aria-label="Save article" data-tooltip="Save">
+                                    <svg class="bookmark-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                    <svg class="checkmark-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </button>
+                            </form>
+                        </article>
+                    <% }); %>
+                </div>
             <% } else { %>
                 <div class="no-news-full">
                     <svg class="no-news-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

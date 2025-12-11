@@ -102,7 +102,8 @@ const requireAdmin = async (req, res, next) => {
 app.get('/', async (req, res) => {
   try {
     let userPreferences = [];
-    let newsCategories = []; // Array of { category: string, news: array }
+    let newsCategories = null; // Array of { category: string, news: array }
+    let news = null; // Flat list for non-preference users
     
     if (req.session.userId) {
       // Fetch user preferences from the database
@@ -155,16 +156,13 @@ app.get('/', async (req, res) => {
           sentiment: 'positive',
         },
       });
-      newsCategories = [{
-        category: 'Latest Good News',
-        news: response.data.posts || [],
-      }];
+      news = response.data.posts || [];
     }
 
-    res.render('index', { newsCategories, error: null, userPreferences });
+    res.render('index', { newsCategories, news, error: null, userPreferences });
     } catch (error) {
         console.error('Error fetching news:', error);
-    res.status(500).render('index', { newsCategories: [], error: 'Error fetching news', userPreferences: [] });
+    res.status(500).render('index', { newsCategories: [], news: [], error: 'Error fetching news', userPreferences: [] });
   }
 });
 
