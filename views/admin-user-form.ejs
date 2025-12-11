@@ -93,29 +93,53 @@
                             name="country"
                             value="<%= values.country || '' %>">
                     </div>
+                    <%
+                        const categories = [
+                            'Arts, Culture and Entertainment',
+                            'Crime, Law and Justice',
+                            'Disaster and Accident',
+                            'Economy, Business and Finance',
+                            'Education',
+                            'Environment',
+                            'Health',
+                            'Human Interest',
+                            'Labor',
+                            'Lifestyle and Leisure',
+                            'Politics',
+                            'Religion and Belief',
+                            'Science and Technology',
+                            'Social Issue',
+                            'Sport',
+                            'War, Conflict and Unrest',
+                            'Weather'
+                        ];
+                    %>
                     <div class="form-group">
-                        <label for="preference_one">Preference one</label>
-                        <input
-                            type="text"
-                            id="preference_one"
-                            name="preference_one"
-                            value="<%= values.preference_one || '' %>">
+                        <label for="preference_one">Preference 1</label>
+                        <select id="preference_one" name="preference_one">
+                            <option value="">-- Select a category --</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>" <%= values.preference_one === cat ? 'selected' : '' %>><%= cat %></option>
+                            <% }); %>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="preference_two">Preference two</label>
-                        <input
-                            type="text"
-                            id="preference_two"
-                            name="preference_two"
-                            value="<%= values.preference_two || '' %>">
+                        <label for="preference_two">Preference 2</label>
+                        <select id="preference_two" name="preference_two">
+                            <option value="">-- Select a category --</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>" <%= values.preference_two === cat ? 'selected' : '' %>><%= cat %></option>
+                            <% }); %>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="preference_three">Preference three</label>
-                        <input
-                            type="text"
-                            id="preference_three"
-                            name="preference_three"
-                            value="<%= values.preference_three || '' %>">
+                        <label for="preference_three">Preference 3</label>
+                        <select id="preference_three" name="preference_three">
+                            <option value="">-- Select a category --</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>" <%= values.preference_three === cat ? 'selected' : '' %>><%= cat %></option>
+                            <% }); %>
+                        </select>
                     </div>
                 </div>
 
