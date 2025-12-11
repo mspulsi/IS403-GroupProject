@@ -15,19 +15,19 @@ const bcrypt = require('bcryptjs');
 // Create a Knex instance to connect to the PostgreSQL database
 // ------------------------------------------------------------
 const db = knex({
-  client: 'pg',
-  connection: {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+    client: 'pg',
+    connection: {
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        port: process.env.DB_PORT,
     ssl: process.env.DB_SSL
       ? {
-          rejectUnauthorized: false,
+            rejectUnauthorized: false,
         }
       : false,
-  },
+    },
 });
 
 
@@ -45,11 +45,11 @@ const port= process.env.PORT || 3000;
 
 // Middleware (app.use), to create a session for each user
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'defaultsecret',
-    resave: false,
-    saveUninitialized: false,
-  })
+    session({
+        secret: process.env.SESSION_SECRET || 'defaultsecret',
+        resave: false,
+        saveUninitialized: false,
+    })
 );
 
 // Middleware to parse URL-encoded bodies
@@ -101,19 +101,91 @@ const requireAdmin = async (req, res, next) => {
 // index page is displayed at root URL
 app.get('/', async (req, res) => {
   try {
+    let userPreferences = [];
+    let newsCategories = []; // Array of { category: string, news: array }
+    
+    if (req.session.userId) {
+      // Fetch user preferences from the database
+      const person = await db('person')
+        .select('preference_one', 'preference_two', 'preference_three')
+        .where({ user_id: req.session.userId })
+        .first();
+      
+      if (person) {
+        userPreferences = [
+          person.preference_one,
+          person.preference_two,
+          person.preference_three
+        ].filter(pref => pref && pref.trim() !== '');
+      }
+    }
+
+    if (userPreferences.length > 0) {
+      // Make separate API calls for each preference
+      const apiCalls = userPreferences.map(async (category) => {
+    try {
+        const response = await axios.get('https://api.webz.io/newsApiLite', {
+            params: {
+                token: process.env.WEBZ_API_KEY,
+              q: `category:"${category}" country:US`,
+              sentiment: 'positive',
+            },
+        });
+          return {
+            category: category,
+            news: response.data.posts || [],
+          };
+        } catch (err) {
+          console.error(`Error fetching news for category ${category}:`, err.message);
+          return {
+            category: category,
+            news: [],
+          };
+        }
+      });
+
+      // Wait for all API calls to complete
+      newsCategories = await Promise.all(apiCalls);
+    } else {
+      // No preferences set - fetch general positive news
+      const response = await axios.get('https://api.webz.io/newsApiLite', {
+        params: {
+          token: process.env.WEBZ_API_KEY,
+          q: 'country:US',
+          sentiment: 'positive',
+        },
+      });
+      newsCategories = [{
+        category: 'Latest Good News',
+        news: response.data.posts || [],
+      }];
+    }
+
+    res.render('index', { newsCategories, error: null, userPreferences });
+    } catch (error) {
+        console.error('Error fetching news:', error);
+    res.status(500).render('index', { newsCategories: [], error: 'Error fetching news', userPreferences: [] });
+  }
+});
+
+// Category page - shows all articles for a specific category
+app.get('/category/:categoryName', async (req, res) => {
+  try {
+    const categoryName = decodeURIComponent(req.params.categoryName);
+    
     const response = await axios.get('https://api.webz.io/newsApiLite', {
       params: {
         token: process.env.WEBZ_API_KEY,
-        q: '*',
+        q: `category:"${categoryName}" country:US`,
         sentiment: 'positive',
       },
     });
 
     const news = response.data.posts || [];
-    res.render('index', { news, error: null });
+    res.render('category', { category: categoryName, news, error: null });
   } catch (error) {
-    console.error('Error fetching news:', error);
-    res.status(500).render('index', { error: 'Error fetching news' });
+    console.error('Error fetching category news:', error);
+    res.status(500).render('category', { category: req.params.categoryName, news: [], error: 'Error fetching news' });
   }
 });
 
@@ -138,11 +210,78 @@ app.get('/saved', async (req, res) => {
 });
 
 // preferences page (requires login)
-app.get('/preferences', (req, res) => {
+app.get('/preferences', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
   }
-  res.render('preferences');
+  
+  try {
+    const person = await db('person')
+      .select('preference_one', 'preference_two', 'preference_three')
+      .where({ user_id: req.session.userId })
+      .first();
+    
+    res.render('preferences', {
+      error: null,
+      success: null,
+      values: {
+        preference_one: person?.preference_one || '',
+        preference_two: person?.preference_two || '',
+        preference_three: person?.preference_three || '',
+      },
+    });
+  } catch (error) {
+    console.error('Error loading preferences:', error);
+    res.render('preferences', {
+      error: 'Unable to load your preferences.',
+      success: null,
+      values: {
+        preference_one: '',
+        preference_two: '',
+        preference_three: '',
+      },
+    });
+  }
+});
+
+// Update preferences (requires login)
+app.post('/preferences', async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+
+  const { preference_one, preference_two, preference_three } = req.body;
+
+  try {
+    await db('person')
+      .where({ user_id: req.session.userId })
+      .update({
+        preference_one: preference_one || null,
+        preference_two: preference_two || null,
+        preference_three: preference_three || null,
+      });
+
+    res.render('preferences', {
+      error: null,
+      success: 'Your preferences have been saved!',
+      values: {
+        preference_one: preference_one || '',
+        preference_two: preference_two || '',
+        preference_three: preference_three || '',
+      },
+    });
+  } catch (error) {
+    console.error('Error saving preferences:', error);
+    res.render('preferences', {
+      error: 'Unable to save your preferences. Please try again.',
+      success: null,
+      values: {
+        preference_one: preference_one || '',
+        preference_two: preference_two || '',
+        preference_three: preference_three || '',
+      },
+    });
+    }
 });
 
 // login page is displayed at /login URL
@@ -206,6 +345,9 @@ app.get('/signup', (req, res) => {
       city: '',
       state: '',
       country: '',
+      preference_one: '',
+      preference_two: '',
+      preference_three: '',
     },
   });
 });
@@ -220,6 +362,9 @@ app.post('/signup', async (req, res) => {
     city,
     state,
     country,
+    preference_one,
+    preference_two,
+    preference_three,
   } = req.body;
 
   const renderWithError = (message) =>
@@ -232,6 +377,9 @@ app.post('/signup', async (req, res) => {
         city: city || '',
         state: state || '',
         country: country || '',
+        preference_one: preference_one || '',
+        preference_two: preference_two || '',
+        preference_three: preference_three || '',
       },
     });
 
@@ -272,6 +420,9 @@ app.post('/signup', async (req, res) => {
         city: city || null,
         state: normalizedState,
         country: normalizedCountry,
+        preference_one: preference_one || null,
+        preference_two: preference_two || null,
+        preference_three: preference_three || null,
       });
 
       return newUser;
@@ -293,6 +444,9 @@ app.post('/signup', async (req, res) => {
           city: city || '',
           state: state || '',
           country: country || '',
+          preference_one: preference_one || '',
+          preference_two: preference_two || '',
+          preference_three: preference_three || '',
         },
       });
     }
@@ -307,6 +461,9 @@ app.post('/signup', async (req, res) => {
         city: city || '',
         state: state || '',
         country: country || '',
+        preference_one: preference_one || '',
+        preference_two: preference_two || '',
+        preference_three: preference_three || '',
       },
     });
   }
@@ -703,5 +860,5 @@ app.delete('/unsave-article', async (req, res) => {
 
 // Start the server and listen on the defined port
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preferences</title>
+    <title>Preferences - Only Good News</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -31,12 +31,80 @@
         </nav>
     </header>
     <main class="container">
-        <div class="card">
-            <h1>Your Preferences</h1>
-            <p class="muted">Preferences editing coming soon.</p>
-            <a href="/" class="btn">← Back to Home</a>
+        <div class="card preferences-card">
+            <div class="preferences-header">
+                <h1>Your News Preferences</h1>
+                <p class="muted">Choose up to 3 categories to personalize your news feed. Your first preference will be used to filter articles.</p>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert error"><%= error %></div>
+            <% } %>
+
+            <% if (success) { %>
+                <div class="alert success"><%= success %></div>
+            <% } %>
+
+            <%
+                const categories = [
+                    'Arts, Culture and Entertainment',
+                    'Crime, Law and Justice',
+                    'Disaster and Accident',
+                    'Economy, Business and Finance',
+                    'Education',
+                    'Environment',
+                    'Health',
+                    'Human Interest',
+                    'Labor',
+                    'Lifestyle and Leisure',
+                    'Politics',
+                    'Religion and Belief',
+                    'Science and Technology',
+                    'Social Issue',
+                    'Sport',
+                    'War, Conflict and Unrest',
+                    'Weather'
+                ];
+            %>
+
+            <form action="/preferences" method="POST" class="preferences-form">
+                <div class="form-group">
+                    <label for="preference_one">Preference 1 (Primary)</label>
+                    <select id="preference_one" name="preference_one">
+                        <option value="">-- Select a category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= values.preference_one === cat ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                    <p class="muted small">This is the category used to filter your news feed.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="preference_two">Preference 2</label>
+                    <select id="preference_two" name="preference_two">
+                        <option value="">-- Select a category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= values.preference_two === cat ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="preference_three">Preference 3</label>
+                    <select id="preference_three" name="preference_three">
+                        <option value="">-- Select a category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= values.preference_three === cat ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="preferences-actions">
+                    <button type="submit" class="btn primary">Save Preferences</button>
+                    <a href="/" class="btn">← Back to News</a>
+                </div>
+            </form>
         </div>
     </main>
 </body>
 </html>
-
