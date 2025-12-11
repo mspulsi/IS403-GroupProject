@@ -7,55 +7,83 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="nav-left">
-                <a href="/">Only Good News</a>
-                <a href="/saved">Saved Articles</a>
-                <a href="/preferences">Preferences</a>
+    <main>
+        <div class="hero-section">
+            <nav class="hero-nav">
+                <div class="hero-nav-left">
+                    <a href="/">Only Good News</a>
+                </div>
+                <div class="hero-nav-right">
+                    <% if (username) { %>
+                        <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <span class="hero-nav-user">Signed in as <%= username %></span>
+                        <form action="/logout" method="POST" class="hero-nav-form">
+                            <button type="submit" class="btn subtle">Logout</button>
+                        </form>
+                    <% } else { %>
+                        <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <a href="/login" class="hero-nav-link">Login</a>
+                        <a class="btn primary" href="/signup">Sign up</a>
+                    <% } %>
+                </div>
+            </nav>
+            <div class="hero-content">
+                <img class="logo" src="/images/logo.png" alt="Only Good News Logo">
+                <h1 class="hero-title">Welcome to Only Good News</h1>
+                <p class="hero-subtitle">Your daily dose of positive stories and uplifting headlines</p>
             </div>
-            <div class="nav-right">
-                <% if (username) { %>
-                    <span class="nav-user">Signed in as <%= username %></span>
-                    <form action="/logout" method="POST">
-                        <button type="submit" class="btn subtle">Logout</button>
-                    </form>
+        </div>
+        <div class="container">
+            <div class="section-header">
+                <h2>Today's Good News</h2>
+                <p class="section-description">Discover inspiring stories that brighten your day</p>
+            </div>
+            <div id="newsfeed" class="newsfeed-grid">
+                <% if (news.length > 0) { %>
+                    <% news.forEach(post => { %>
+                        <article class="news-card">
+                            <% if (post.thread && post.thread.main_image) { %>
+                                <div class="news-image-wrapper">
+                                    <img src="<%= post.thread.main_image %>" 
+                                        alt="Article image"
+                                        class="news-image"
+                                        onerror="this.style.display='none'">
+                                </div>
+                            <% } %>
+                            <div class="news-content">
+                                <h3 class="news-title"><%= post.title %></h3>
+                                <div class="news-meta">
+                                    <span class="news-date">
+                                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                    </span>
+                                </div>
+                                <a href="<%= post.url %>" target="_blank" class="news-link">
+                                    Read full article
+                                    <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                        </article>
+                    <% }); %>
                 <% } else { %>
-                    <a href="/login">Login</a>
-                    <a class="btn primary" href="/signup">Sign up</a>
+                    <div class="no-news">
+                        <svg class="no-news-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <p>No news found at the moment. Check back soon for more positive stories!</p>
+                    </div>
                 <% } %>
             </div>
-        </nav>
-    </header>
-    <main>
-        <div class="header-section">
-            <img class="logo" src="/images/logo.png" alt="Only Good News Logo">
-        </div>
-        <div id="newsfeed" class="container">
-            <% if (news.length > 0) { %>
-                <% news.forEach(post => { %>
-                    <div class="news-item">
-                        <h3><%= post.title %></h3>
-                        <% if (post.thread && post.thread.main_image) { %>
-                            <img src="<%= post.thread.main_image %>" 
-                                alt="Article image"
-                                onerror="this.style.display='none'">
-                        <% } %>
-                        <p><%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-                        <a href="<%= post.url %>" target="_blank">Read full article →</a>
-                        <form action="/save-article" method="POST" class="save-article-form" data-article-url="<%= post.url %>">
-                            <input type="hidden" name="title" value="<%= post.title %>">
-                            <input type="hidden" name="url" value="<%= post.url %>">
-                            <button type="submit" class="save-btn" aria-label="Save article">
-                                <span class="bookmark-icon">Save</span>
-                                <span class="checkmark-icon" style="display: none;">Saved</span>
-                            </button>
-                        </form>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <p>No news found.</p>
-            <% } %>
         </div>
     </main>
     <footer>&copy; 2025 Only Good News. All rights reserved.</footer>
