@@ -11,6 +11,7 @@
         <nav>
             <div class="nav-left">
                 <a href="/">Only Good News</a>
+                <a href="/saved">Saved Articles</a>
                 <a href="/preferences">Preferences</a>
             </div>
             <div class="nav-right">
@@ -42,6 +43,16 @@
                         <% } %>
                         <p><%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
                         <a href="<%= post.url %>" target="_blank">Read full article →</a>
+                        <form action="/save-article" method="POST" class="save-article-form" data-article-url="<%= post.url %>">
+                            <input type="hidden" name="title" value="<%= post.title %>">
+                            <input type="hidden" name="url" value="<%= post.url %>">
+                            <input type="hidden" name="published" value="<%= post.published %>">
+                            <input type="hidden" name="image" value="<%= post.thread && post.thread.main_image ? post.thread.main_image : '' %>">
+                            <button type="submit" class="save-btn" aria-label="Save article">
+                                <span class="bookmark-icon">Save</span>
+                                <span class="checkmark-icon" style="display: none;">Saved</span>
+                            </button>
+                        </form>
                     </div>
                 <% }); %>
             <% } else { %>
@@ -50,5 +61,55 @@
         </div>
     </main>
     <footer>&copy; 2025 Only Good News. All rights reserved.</footer>
+    <script>
+        // Handle save article form submissions
+        document.querySelectorAll('.save-article-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const button = form.querySelector('.save-btn');
+                
+                // Disable button and show loading state
+                button.disabled = true;
+                button.style.opacity = '0.7';
+
+                try {
+                    const response = await fetch('/save-article', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    // Check if user is not logged in (401 status)
+                    if (response.status === 401) {
+                        alert('Log in to save news');
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Change to checkmark and white background
+                        const bookmarkIcon = button.querySelector('.bookmark-icon');
+                        const checkmarkIcon = button.querySelector('.checkmark-icon');
+                        bookmarkIcon.style.display = 'none';
+                        checkmarkIcon.style.display = 'inline';
+                        button.classList.add('saved');
+                        button.disabled = true;
+                    } else {
+                        alert(data.message || 'Error saving article');
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error saving article. Please try again.');
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -83,6 +83,26 @@ app.get('/', async (req, res) => {
   }
 });
 
+// saved articles page (requires login)
+// Route: /saved -> renders views/saved.ejs
+app.get('/saved', async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Fetch saved articles for the user
+    const savedArticles = await db('saved_articles')
+      .where({ user_id: req.session.userId })
+      .orderBy('saved_at', 'desc');
+
+    res.render('saved', { savedArticles });
+  } catch (error) {
+    console.error('Error fetching saved articles:', error);
+    res.status(500).render('saved', { savedArticles: [], error: 'Error loading saved articles' });
+  }
+});
+
 // preferences page (requires login)
 app.get('/preferences', (req, res) => {
   if (!req.session.userId) {
@@ -260,6 +280,46 @@ app.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login');
   });
+});
+
+// Save article to user's profile
+app.post('/save-article', async (req, res) => {
+  try {
+    const { title, url, published, image } = req.body;
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please log in to save articles' });
+    }
+
+    if (!title || !url) {
+      return res.status(400).json({ success: false, message: 'Title and URL are required' });
+    }
+
+    // Check if article already saved for this user
+    const existing = await db('saved_articles')
+      .where({ user_id: userId, url: url })
+      .first();
+
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'Article already saved' });
+    }
+
+    // Save the article
+    await db('saved_articles').insert({
+      user_id: userId,
+      title: title,
+      url: url,
+      published: published ? new Date(published) : new Date(),
+      image_url: image || null,
+      saved_at: new Date()
+    });
+
+    res.json({ success: true, message: 'Article saved successfully' });
+  } catch (error) {
+    console.error('Error saving article:', error);
+    res.status(500).json({ success: false, message: 'Error saving article' });
+  }
 });
 
 // Start the server and listen on the defined port
