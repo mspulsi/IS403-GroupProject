@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= mode === 'edit' ? 'Edit Person' : 'Add Person' %></title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="/">Only Good News</a>
+                <a href="/preferences">Preferences</a>
+                <a href="/admin/users">Manage Users</a>
+            </div>
+            <div class="nav-right">
+                <% if (username) { %>
+                    <span class="nav-user">Signed in as <%= username %></span>
+                    <form action="/logout" method="POST">
+                        <button type="submit" class="btn subtle">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a class="btn primary" href="/signup">Sign up</a>
+                <% } %>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="admin-header">
+                <div>
+                    <h1><%= mode === 'edit' ? 'Edit Person' : 'Add Person' %></h1>
+                    <p class="muted">Manage user and person details.</p>
+                </div>
+                <a class="btn" href="/admin/users">← Back to list</a>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert error"><%= error %></div>
+            <% } %>
+
+            <form class="admin-form" action="<%= mode === 'edit' ? '/admin/users/' + values.person_id : '/admin/users' %>" method="POST">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="<%= values.username || '' %>"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name">First name</label>
+                        <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            value="<%= values.first_name || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last name</label>
+                        <input
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            value="<%= values.last_name || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            value="<%= values.city || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State/Province</label>
+                        <input
+                            type="text"
+                            id="state"
+                            name="state"
+                            value="<%= values.state || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input
+                            type="text"
+                            id="country"
+                            name="country"
+                            value="<%= values.country || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="preference_one">Preference one</label>
+                        <input
+                            type="text"
+                            id="preference_one"
+                            name="preference_one"
+                            value="<%= values.preference_one || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="preference_two">Preference two</label>
+                        <input
+                            type="text"
+                            id="preference_two"
+                            name="preference_two"
+                            value="<%= values.preference_two || '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="preference_three">Preference three</label>
+                        <input
+                            type="text"
+                            id="preference_three"
+                            name="preference_three"
+                            value="<%= values.preference_three || '' %>">
+                    </div>
+                </div>
+
+                <div class="form-grid two-col">
+                    <div class="form-group">
+                        <label for="password"><%= mode === 'edit' ? 'Password (leave blank to keep current)' : 'Password' %></label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            minlength="8"
+                            <%= mode === 'create' ? 'required' : '' %>>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm password</label>
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            minlength="8"
+                            <%= mode === 'create' ? 'required' : '' %>>
+                    </div>
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn primary"><%= mode === 'edit' ? 'Save changes' : 'Create user' %></button>
+                    <a class="btn subtle" href="/admin/users">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
+

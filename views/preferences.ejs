@@ -13,6 +13,9 @@
                 <a href="/">Only Good News</a>
                 <a href="/saved">Saved Articles</a>
                 <a href="/preferences">Preferences</a>
+                <% if (isAdmin) { %>
+                    <a href="/admin/users">Manage Users</a>
+                <% } %>
             </div>
             <div class="nav-right">
                 <% if (username) { %>

@@ -16,6 +16,9 @@
                 <div class="hero-nav-right">
                     <% if (username) { %>
                         <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <% if (isAdmin) { %>
+                            <a href="/admin/users" class="hero-nav-link">Manage Users</a>
+                        <% } %>
                         <span class="hero-nav-user">Signed in as <%= username %></span>
                         <form action="/logout" method="POST" class="hero-nav-form">
                             <button type="submit" class="btn subtle">Logout</button>
