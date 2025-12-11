@@ -9,8 +9,21 @@
 <body>
     <header>
         <nav>
-            <a href="/preferences">Preferences</a>
-            <a href="/">Logout</a>
+            <div class="nav-left">
+                <a href="/">Only Good News</a>
+                <a href="/preferences">Preferences</a>
+            </div>
+            <div class="nav-right">
+                <% if (username) { %>
+                    <span class="nav-user">Signed in as <%= username %></span>
+                    <form action="/logout" method="POST">
+                        <button type="submit" class="btn subtle">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a class="btn primary" href="/signup">Sign up</a>
+                <% } %>
+            </div>
         </nav>
     </header>
     <main>
