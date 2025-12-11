@@ -49,22 +49,91 @@
                 </div>
                 <div class="form-group">
                     <label for="state">State/Province (optional)</label>
-                    <input 
-                        type="text" 
-                        id="state" 
-                        name="state" 
-                        value="<%= (values && values.state) ? values.state : '' %>"
-                        autocomplete="address-level1">
+                    <select id="state" name="state" autocomplete="address-level1">
+                        <option value="">Select state</option>
+                        <% [
+                            ['AL','AL'],['AK','AK'],['AZ','AZ'],['AR','AR'],['CA','CA'],
+                            ['CO','CO'],['CT','CT'],['DE','DE'],['FL','FL'],['GA','GA'],
+                            ['HI','HI'],['ID','ID'],['IL','IL'],['IN','IN'],['IA','IA'],
+                            ['KS','KS'],['KY','KY'],['LA','LA'],['ME','ME'],['MD','MD'],
+                            ['MA','MA'],['MI','MI'],['MN','MN'],['MS','MS'],['MO','MO'],
+                            ['MT','MT'],['NE','NE'],['NV','NV'],['NH','NH'],['NJ','NJ'],
+                            ['NM','NM'],['NY','NY'],['NC','NC'],['ND','ND'],['OH','OH'],
+                            ['OK','OK'],['OR','OR'],['PA','PA'],['RI','RI'],['SC','SC'],
+                            ['SD','SD'],['TN','TN'],['TX','TX'],['UT','UT'],['VT','VT'],
+                            ['VA','VA'],['WA','WA'],['WV','WV'],['WI','WI'],['WY','WY']
+                        ].forEach(([code,label]) => { %>
+                            <option value="<%= code %>" <%= (values && (values.state || '').toUpperCase() === code) ? 'selected' : '' %>><%= label %></option>
+                        <% }); %>
+                        <option value="OTHER" <%= (values && values.state === 'OTHER') ? 'selected' : '' %>>Other</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="country">Country (optional)</label>
-                    <input 
-                        type="text" 
-                        id="country" 
-                        name="country" 
-                        value="<%= (values && values.country) ? values.country : '' %>"
-                        autocomplete="country-name">
+                    <select id="country" name="country" autocomplete="country-name">
+                        <option value="">Select country</option>
+                        <% [
+                            'USA','Canada','Mexico','United Kingdom','Ireland','Germany','France','Spain','Italy',
+                            'Netherlands','Belgium','Sweden','Norway','Denmark','Finland','Switzerland','Austria',
+                            'Australia','New Zealand','India','China','Japan','South Korea','Singapore','Philippines',
+                            'Brazil','Argentina','Chile','Colombia','South Africa','Nigeria','Kenya','Egypt','Israel',
+                            'United Arab Emirates','Saudi Arabia','Turkey','Other'
+                        ].forEach((country) => { %>
+                            <option value="<%= country %>" <%= (values && values.country === country) ? 'selected' : '' %>><%= country %></option>
+                        <% }); %>
+                    </select>
                 </div>
+
+                <%
+                    const categories = [
+                        'Arts, Culture and Entertainment',
+                        'Crime, Law and Justice',
+                        'Disaster and Accident',
+                        'Economy, Business and Finance',
+                        'Education',
+                        'Environment',
+                        'Health',
+                        'Human Interest',
+                        'Labor',
+                        'Lifestyle and Leisure',
+                        'Politics',
+                        'Religion and Belief',
+                        'Science and Technology',
+                        'Social Issue',
+                        'Sport',
+                        'War, Conflict and Unrest',
+                        'Weather'
+                    ];
+                %>
+
+                <div class="form-group">
+                    <label for="preference_one">News Preference 1 (optional)</label>
+                    <select id="preference_one" name="preference_one">
+                        <option value="">-- Select a category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= (values && values.preference_one === cat) ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preference_two">News Preference 2 (optional)</label>
+                    <select id="preference_two" name="preference_two">
+                        <option value="">-- Select a category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= (values && values.preference_two === cat) ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preference_three">News Preference 3 (optional)</label>
+                    <select id="preference_three" name="preference_three">
+                        <option value="">-- Select a category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= (values && values.preference_three === cat) ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input 

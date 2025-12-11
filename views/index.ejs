@@ -17,6 +17,9 @@
                     <% if (username) { %>
                         <a href="/preferences" class="hero-nav-link">Preferences</a>
                         <a href="/saved" class="hero-nav-link">Saved</a>
+                        <% if (isAdmin) { %>
+                            <a href="/admin/users" class="hero-nav-link">Manage Users</a>
+                        <% } %>
                         <span class="hero-nav-user">Signed in as <%= username %></span>
                         <form action="/logout" method="POST" class="hero-nav-form">
                             <button type="submit" class="btn subtle">Logout</button>
@@ -35,36 +38,67 @@
             </div>
         </div>
         <div class="container">
-            <div class="section-header">
-                <h2>Today's Good News</h2>
-                <p class="section-description">Discover inspiring stories that brighten your day</p>
-            </div>
-            <div id="newsfeed" class="newsfeed-grid">
-                <% if (news.length > 0) { %>
-                    <% news.forEach(post => { %>
-                        <article class="news-card">
-                            <% if (post.thread && post.thread.main_image) { %>
-                                <div class="news-image-wrapper">
-                                    <img src="<%= post.thread.main_image %>" 
-                                        alt="Article image"
-                                        class="news-image"
-                                        onerror="this.style.display='none'">
+            <% if (newsCategories && newsCategories.length > 0) { %>
+                <% newsCategories.forEach((categoryData, index) => { %>
+                    <section class="news-section">
+                        <a href="/category/<%= encodeURIComponent(categoryData.category) %>" class="section-header-link">
+                            <div class="section-header">
+                                <h2>
+                                    <%= categoryData.category %>
+                                    <svg class="section-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </h2>
+                                <% if (categoryData.news.length > 3) { %>
+                                    <span class="view-all">View all <%= categoryData.news.length %> articles</span>
+                                <% } %>
+                            </div>
+                        </a>
+                        <div id="newsfeed-<%= index %>" class="newsfeed-grid">
+                            <% if (categoryData.news.length > 0) { %>
+                                <% categoryData.news.slice(0, 3).forEach(post => { %>
+                                    <article class="news-card">
+                                        <% if (post.thread && post.thread.main_image) { %>
+                                            <div class="news-image-wrapper">
+                                                <img src="<%= post.thread.main_image %>" 
+                                                    alt="Article image"
+                                                    class="news-image"
+                                                    onerror="this.parentElement.style.display='none'">
+                                            </div>
+                                        <% } %>
+                                        <div class="news-content">
+                                            <h3 class="news-title"><%= post.title %></h3>
+                                            <div class="news-meta">
+                                                <span class="news-date">
+                                                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                                    </svg>
+                                                    <%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                                </span>
+                                            </div>
+                                            <a href="<%= post.url %>" target="_blank" class="news-link">
+                                                Read full article
+                                                <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </article>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="no-news">
+                                    <p>No articles found for this category at the moment.</p>
                                 </div>
                             <% } %>
-                            <div class="news-content">
-                                <h3 class="news-title"><%= post.title %></h3>
-                                <div class="news-meta">
-                                    <span class="news-date">
-                                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <%= new Date(post.published).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                    </span>
-                                </div>
-                                <a href="<%= post.url %>" target="_blank" class="news-link">
-                                    Read full article
-                                    <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        </div>
+                        <% if (categoryData.news.length > 3) { %>
+                            <div class="view-more-container">
+                                <a href="/category/<%= encodeURIComponent(categoryData.category) %>" class="btn view-more-btn">
+                                    View all <%= categoryData.news.length %> articles
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                         <polyline points="12 5 19 12 12 19"></polyline>
                                     </svg>

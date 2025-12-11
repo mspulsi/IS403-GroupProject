@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="/">Only Good News</a>
+                <a href="/preferences">Preferences</a>
+                <a href="/admin/users">Manage Users</a>
+            </div>
+            <div class="nav-right">
+                <% if (username) { %>
+                    <span class="nav-user">Signed in as <%= username %></span>
+                    <form action="/logout" method="POST">
+                        <button type="submit" class="btn subtle">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a class="btn primary" href="/signup">Sign up</a>
+                <% } %>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="admin-header">
+                <div>
+                    <h1>Manage Users</h1>
+                    <p class="muted">Search, view, edit, or delete person records.</p>
+                </div>
+                <a class="btn primary" href="/admin/users/new">+ Add Person</a>
+            </div>
+
+            <form class="admin-search" method="GET" action="/admin/users">
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by name, city, state, country, or user id"
+                    value="<%= search %>">
+                <button class="btn" type="submit">Search</button>
+            </form>
+
+            <% if (error) { %>
+                <div class="alert error"><%= error %></div>
+            <% } %>
+            <% if (message) { %>
+                <div class="alert success"><%= message %></div>
+            <% } %>
+
+            <div class="table-wrapper">
+                <table class="table-simple">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Country</th>
+                            <th>Preferences</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (people.length === 0) { %>
+                            <tr>
+                                <td colspan="8" class="muted">No records found.</td>
+                            </tr>
+                        <% } %>
+                        <% people.forEach(person => { %>
+                            <tr>
+                                <td><%= person.user_id %></td>
+                                <td><%= person.username %></td>
+                                <td><%= [person.first_name, person.last_name].filter(Boolean).join(' ') || '—' %></td>
+                                <td><%= person.city || '—' %></td>
+                                <td><%= person.state || '—' %></td>
+                                <td><%= person.country || '—' %></td>
+                                <td>
+                                    <div class="pref-stack">
+                                        <span><%= person.preference_one || '—' %></span>
+                                        <span><%= person.preference_two || '—' %></span>
+                                        <span><%= person.preference_three || '—' %></span>
+                                    </div>
+                                </td>
+                                <td class="admin-actions actions-cell">
+                                    <a class="btn" href="/admin/users/<%= person.person_id %>/edit">Edit</a>
+                                    <form action="/admin/users/<%= person.person_id %>/delete" method="POST" onsubmit="return confirm('Delete this user and their person record?');">
+                                        <button type="submit" class="btn danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+
