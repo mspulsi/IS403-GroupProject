@@ -46,8 +46,6 @@
                         <form action="/save-article" method="POST" class="save-article-form" data-article-url="<%= post.url %>">
                             <input type="hidden" name="title" value="<%= post.title %>">
                             <input type="hidden" name="url" value="<%= post.url %>">
-                            <input type="hidden" name="published" value="<%= post.published %>">
-                            <input type="hidden" name="image" value="<%= post.thread && post.thread.main_image ? post.thread.main_image : '' %>">
                             <button type="submit" class="save-btn" aria-label="Save article">
                                 <span class="bookmark-icon">Save</span>
                                 <span class="checkmark-icon" style="display: none;">Saved</span>
@@ -74,9 +72,14 @@
                 button.style.opacity = '0.7';
 
                 try {
+                    // Convert FormData to URL-encoded format
+                    const params = new URLSearchParams(formData);
                     const response = await fetch('/save-article', {
                         method: 'POST',
-                        body: formData
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params
                     });
 
                     // Check if user is not logged in (401 status)

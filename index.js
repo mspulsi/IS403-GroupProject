@@ -91,10 +91,10 @@ app.get('/saved', async (req, res) => {
   }
 
   try {
-    // Fetch saved articles for the user
-    const savedArticles = await db('saved_articles')
+    // Fetch saved articles for the user from news_posts table
+    const savedArticles = await db('news_posts')
       .where({ user_id: req.session.userId })
-      .orderBy('saved_at', 'desc');
+      .select('user_id', 'title', 'url');
 
     res.render('saved', { savedArticles });
   } catch (error) {
@@ -285,7 +285,11 @@ app.post('/logout', (req, res) => {
 // Save article to user's profile
 app.post('/save-article', async (req, res) => {
   try {
-    const { title, url, published, image } = req.body;
+    console.log('req.body:', req.body);
+    console.log('req.body keys:', Object.keys(req.body));
+    const { title, url } = req.body;
+    console.log('Extracted title:', title);
+    console.log('Extracted url:', url);
     const userId = req.session.userId;
 
     if (!userId) {
@@ -297,7 +301,7 @@ app.post('/save-article', async (req, res) => {
     }
 
     // Check if article already saved for this user
-    const existing = await db('saved_articles')
+    const existing = await db('news_posts')
       .where({ user_id: userId, url: url })
       .first();
 
@@ -305,20 +309,47 @@ app.post('/save-article', async (req, res) => {
       return res.status(409).json({ success: false, message: 'Article already saved' });
     }
 
-    // Save the article
-    await db('saved_articles').insert({
+    // Save the article to news_posts table
+    await db('news_posts').insert({
       user_id: userId,
       title: title,
-      url: url,
-      published: published ? new Date(published) : new Date(),
-      image_url: image || null,
-      saved_at: new Date()
+      url: url
     });
 
     res.json({ success: true, message: 'Article saved successfully' });
   } catch (error) {
     console.error('Error saving article:', error);
     res.status(500).json({ success: false, message: 'Error saving article' });
+  }
+});
+
+// Remove/unsave article from user's saved articles
+app.delete('/unsave-article', async (req, res) => {
+  try {
+    const { url } = req.body;
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please log in to unsave articles' });
+    }
+
+    if (!url) {
+      return res.status(400).json({ success: false, message: 'URL is required' });
+    }
+
+    // Delete the article from news_posts table for this user
+    const deleted = await db('news_posts')
+      .where({ user_id: userId, url: url })
+      .del();
+
+    if (deleted === 0) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+
+    res.json({ success: true, message: 'Article removed successfully' });
+  } catch (error) {
+    console.error('Error removing article:', error);
+    res.status(500).json({ success: false, message: 'Error removing article' });
   }
 });
 
