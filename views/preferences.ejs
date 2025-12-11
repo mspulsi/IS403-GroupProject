@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preferences</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="/">Only Good News</a>
+                <a href="/preferences">Preferences</a>
+            </div>
+            <div class="nav-right">
+                <% if (username) { %>
+                    <span class="nav-user">Signed in as <%= username %></span>
+                    <form action="/logout" method="POST">
+                        <button type="submit" class="btn subtle">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a class="btn primary" href="/signup">Sign up</a>
+                <% } %>
+            </div>
+        </nav>
+    </header>
+    <main class="container">
+        <div class="card">
+            <h1>Your Preferences</h1>
+            <p class="muted">Preferences editing coming soon.</p>
+            <a href="/" class="btn">← Back to Home</a>
+        </div>
+    </main>
+</body>
+</html>
+

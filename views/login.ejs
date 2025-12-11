@@ -7,21 +7,31 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <main>
-        <div class="login-container">
-            <h1>Login</h1>
-            <form action="/login" method="POST">
+    <main class="auth-page">
+        <div class="auth-top-actions">
+            <a href="/" class="btn subtle">← Back to Home</a>
+        </div>
+        <div class="auth-card">
+            <h1>Welcome back</h1>
+            <p class="muted">Sign in to see the latest good news.</p>
+
+            <% if (error) { %>
+                <div class="alert error"><%= error %></div>
+            <% } %>
+
+            <form action="/login" method="POST" class="auth-form">
                 <div class="form-group">
-                    <label for="email">Email:</label>
+                    <label for="username">Username</label>
                     <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        autocomplete="email"
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        value="<%= (values && values.username) ? values.username : '' %>"
+                        autocomplete="username"
                         required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
+                    <label for="password">Password</label>
                     <input 
                         type="password" 
                         id="password" 
@@ -29,10 +39,10 @@
                         autocomplete="current-password"
                         required>
                 </div>
-                <button type="submit">Sign In</button>
+                <button type="submit" class="btn primary">Sign In</button>
             </form>
-            <p class="signup-link">
-                Don't have an account? <a href="/signup">Sign up</a>
+            <p class="muted small">
+                Don't have an account? <a href="/signup">Create one</a>
             </p>
         </div>
     </main>

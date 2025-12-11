@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <main class="auth-page">
+        <div class="auth-top-actions">
+            <a href="/" class="btn subtle">← Back to Home</a>
+        </div>
+        <div class="auth-card">
+            <h1>Create your account</h1>
+            <p class="muted">Join Only Good News to stay positive.</p>
+
+            <% if (error) { %>
+                <div class="alert error"><%= error %></div>
+            <% } %>
+
+            <form action="/signup" method="POST" class="auth-form">
+                <div class="form-group">
+                    <label for="first_name">First name (optional)</label>
+                    <input 
+                        type="text" 
+                        id="first_name" 
+                        name="first_name" 
+                        value="<%= (values && values.first_name) ? values.first_name : '' %>"
+                        autocomplete="given-name">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last name (optional)</label>
+                    <input 
+                        type="text" 
+                        id="last_name" 
+                        name="last_name" 
+                        value="<%= (values && values.last_name) ? values.last_name : '' %>"
+                        autocomplete="family-name">
+                </div>
+                <div class="form-group">
+                    <label for="city">City (optional)</label>
+                    <input 
+                        type="text" 
+                        id="city" 
+                        name="city" 
+                        value="<%= (values && values.city) ? values.city : '' %>"
+                        autocomplete="address-level2">
+                </div>
+                <div class="form-group">
+                    <label for="state">State/Province (optional)</label>
+                    <input 
+                        type="text" 
+                        id="state" 
+                        name="state" 
+                        value="<%= (values && values.state) ? values.state : '' %>"
+                        autocomplete="address-level1">
+                </div>
+                <div class="form-group">
+                    <label for="country">Country (optional)</label>
+                    <input 
+                        type="text" 
+                        id="country" 
+                        name="country" 
+                        value="<%= (values && values.country) ? values.country : '' %>"
+                        autocomplete="country-name">
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        value="<%= (values && values.username) ? values.username : '' %>"
+                        autocomplete="username"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        minlength="8"
+                        autocomplete="new-password"
+                        required>
+                    <p class="muted small">Must be at least 8 characters.</p>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm password</label>
+                    <input 
+                        type="password" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        minlength="8"
+                        autocomplete="new-password"
+                        required>
+                </div>
+                <button type="submit" class="btn primary">Create Account</button>
+            </form>
+            <p class="muted small">
+                Already have an account? <a href="/login">Sign in</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>
+
