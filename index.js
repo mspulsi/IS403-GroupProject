@@ -117,6 +117,26 @@ app.get('/', async (req, res) => {
   }
 });
 
+// saved articles page (requires login)
+// Route: /saved -> renders views/saved.ejs
+app.get('/saved', async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Fetch saved articles for the user from news_posts table
+    const savedArticles = await db('news_posts')
+      .where({ user_id: req.session.userId })
+      .select('user_id', 'title', 'url');
+
+    res.render('saved', { savedArticles });
+  } catch (error) {
+    console.error('Error fetching saved articles:', error);
+    res.status(500).render('saved', { savedArticles: [], error: 'Error loading saved articles' });
+  }
+});
+
 // preferences page (requires login)
 app.get('/preferences', (req, res) => {
   if (!req.session.userId) {
@@ -607,6 +627,77 @@ app.post('/admin/users/:id/delete', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Admin delete error:', error);
     return res.redirect('/admin/users');
+  }
+});
+
+// Save article to user's profile
+app.post('/save-article', async (req, res) => {
+  try {
+    console.log('req.body:', req.body);
+    console.log('req.body keys:', Object.keys(req.body));
+    const { title, url } = req.body;
+    console.log('Extracted title:', title);
+    console.log('Extracted url:', url);
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please log in to save articles' });
+    }
+
+    if (!title || !url) {
+      return res.status(400).json({ success: false, message: 'Title and URL are required' });
+    }
+
+    // Check if article already saved for this user
+    const existing = await db('news_posts')
+      .where({ user_id: userId, url: url })
+      .first();
+
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'Article already saved' });
+    }
+
+    // Save the article to news_posts table
+    await db('news_posts').insert({
+      user_id: userId,
+      title: title,
+      url: url
+    });
+
+    res.json({ success: true, message: 'Article saved successfully' });
+  } catch (error) {
+    console.error('Error saving article:', error);
+    res.status(500).json({ success: false, message: 'Error saving article' });
+  }
+});
+
+// Remove/unsave article from user's saved articles
+app.delete('/unsave-article', async (req, res) => {
+  try {
+    const { url } = req.body;
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Please log in to unsave articles' });
+    }
+
+    if (!url) {
+      return res.status(400).json({ success: false, message: 'URL is required' });
+    }
+
+    // Delete the article from news_posts table for this user
+    const deleted = await db('news_posts')
+      .where({ user_id: userId, url: url })
+      .del();
+
+    if (deleted === 0) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+
+    res.json({ success: true, message: 'Article removed successfully' });
+  } catch (error) {
+    console.error('Error removing article:', error);
+    res.status(500).json({ success: false, message: 'Error removing article' });
   }
 });
 

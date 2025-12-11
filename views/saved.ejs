@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Articles - Only Good News</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="/">Only Good News</a>
+                <a href="/saved">Saved Articles</a>
+                <a href="/preferences">Preferences</a>
+            </div>
+            <div class="nav-right">
+                <% if (username) { %>
+                    <span class="nav-user">Signed in as <%= username %></span>
+                    <form action="/logout" method="POST">
+                        <button type="submit" class="btn subtle">Logout</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login">Login</a>
+                    <a class="btn primary" href="/signup">Sign up</a>
+                <% } %>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="header-section">
+            <img class="logo" src="/images/logo.png" alt="Only Good News Logo">
+        </div>
+        <div id="newsfeed" class="container">
+            <% if (savedArticles && savedArticles.length > 0) { %>
+                <% savedArticles.forEach(article => { %>
+                    <div class="news-item" data-article-url="<%= article.url %>">
+                        <h3><%= article.title %></h3>
+                        <a href="<%= article.url %>" target="_blank">Read full article →</a>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button class="btn unsave-btn" data-url="<%= article.url %>" aria-label="Remove article">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="card">
+                    <h2>No Saved Articles</h2>
+                    <p class="muted">You haven't saved any articles yet. Start saving articles from the <a href="/">home page</a>!</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+    <footer>&copy; 2025 Only Good News. All rights reserved.</footer>
+    <script>
+        // Handle unsave/remove article button clicks
+        document.querySelectorAll('.unsave-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const url = button.getAttribute('data-url');
+                const newsItem = button.closest('.news-item');
+                
+                if (!confirm('Are you sure you want to remove this article from your saved articles?')) {
+                    return;
+                }
+
+                // Disable button and show loading state
+                button.disabled = true;
+                button.textContent = 'Removing...';
+                button.style.opacity = '0.7';
+
+                try {
+                    const response = await fetch('/unsave-article', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({ url: url })
+                    });
+
+                    if (response.status === 401) {
+                        alert('Please log in to remove articles');
+                        button.disabled = false;
+                        button.textContent = 'Remove';
+                        button.style.opacity = '1';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Remove the article from the page
+                        newsItem.style.transition = 'opacity 0.3s ease';
+                        newsItem.style.opacity = '0';
+                        setTimeout(() => {
+                            newsItem.remove();
+                            
+                            // Check if no articles left
+                            const remainingArticles = document.querySelectorAll('.news-item').length;
+                            if (remainingArticles === 0) {
+                                location.reload(); // Reload to show empty state
+                            }
+                        }, 300);
+                    } else {
+                        alert(data.message || 'Error removing article');
+                        button.disabled = false;
+                        button.textContent = 'Remove';
+                        button.style.opacity = '1';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error removing article. Please try again.');
+                    button.disabled = false;
+                    button.textContent = 'Remove';
+                    button.style.opacity = '1';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
