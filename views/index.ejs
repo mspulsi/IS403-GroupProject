@@ -16,6 +16,7 @@
                 <div class="hero-nav-right">
                     <% if (username) { %>
                         <a href="/preferences" class="hero-nav-link">Preferences</a>
+                        <a href="/saved" class="hero-nav-link">Saved</a>
                         <span class="hero-nav-user">Signed in as <%= username %></span>
                         <form action="/logout" method="POST" class="hero-nav-form">
                             <button type="submit" class="btn subtle">Logout</button>
@@ -69,6 +70,18 @@
                                     </svg>
                                 </a>
                             </div>
+                            <form class="save-article-form" style="position: absolute; bottom: 1rem; right: 1rem;">
+                                <input type="hidden" name="title" value="<%= post.title %>">
+                                <input type="hidden" name="url" value="<%= post.url %>">
+                                <button type="submit" class="save-btn" aria-label="Save article" data-tooltip="Save">
+                                    <svg class="bookmark-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                    <svg class="checkmark-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </button>
+                            </form>
                         </article>
                     <% }); %>
                 <% } else { %>
@@ -127,6 +140,7 @@
                         bookmarkIcon.style.display = 'none';
                         checkmarkIcon.style.display = 'inline';
                         button.classList.add('saved');
+                        button.setAttribute('data-tooltip', 'Saved');
                         button.disabled = true;
                     } else {
                         alert(data.message || 'Error saving article');
